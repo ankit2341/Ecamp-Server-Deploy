@@ -9,11 +9,23 @@ const { auth } = require("../middleware/auth");
 const userRouter = express.Router();
 
 userRouter.get("/", async (req, res) => {
+  const { page } = req.query;
   try {
-    const users = await UserModel.find();
-    res.status(200).send(users);
+    if (page != undefined) {
+      if (page == 1) {
+        const camps = await UserModel.find().skip(0).limit(8);
+        res.status(200).send(camps);
+      } else {
+        const camps = await UserModel.find()
+          .skip((page - 1) * 8)
+          .limit(8);
+        res.status(200).send(camps);
+      }
+    } else {
+      res.status(200).send({ msg: "page mising" });
+    }
   } catch (err) {
-    res.status(404).send({ msg: "404 error" });
+    res.status(404).send({ msg: "error connecting to api" });
   }
 });
 

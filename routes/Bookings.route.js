@@ -5,11 +5,23 @@ const { BookingsModel } = require("../model/Bookings.model");
 const bookingRouter = express.Router();
 
 bookingRouter.get("/", async (req, res) => {
+  const { page } = req.query;
   try {
-    const bookings = await BookingsModel.find();
-    res.status(200).send(bookings);
+    if (page != undefined) {
+      if (page == 1) {
+        const camps = await BookingsModel.find().skip(0).limit(8);
+        res.status(200).send(camps);
+      } else {
+        const camps = await BookingsModel.find()
+          .skip((page - 1) * 8)
+          .limit(8);
+        res.status(200).send(camps);
+      }
+    } else {
+      res.status(200).send({ msg: "page mising" });
+    }
   } catch (err) {
-    res.status(404).send({ msg: "404 error" });
+    res.status(404).send({ msg: "error connecting to api" });
   }
 });
 
